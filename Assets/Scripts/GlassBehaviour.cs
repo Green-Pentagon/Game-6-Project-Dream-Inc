@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GlassBehaviour : MonoBehaviour
 {
+    public GameObject EmitterPrefab;
     private BoxCollider2D bc;
     private SpriteRenderer sr;
     private AudioSource ShatterAudio;
@@ -20,11 +21,15 @@ public class GlassBehaviour : MonoBehaviour
 
     IEnumerator DestroyGlass()
     {
+        
         ShatterAudio.Play();
         yield return new WaitForSeconds(0.5f);
         bc.enabled = false;
         sr.enabled = false;
-        yield return new WaitForSeconds(5.0f);
+        GameObject temp;
+        temp = Instantiate(EmitterPrefab, transform);
+        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(temp.GetComponent<GlassEmitter>().duration);
         bc.enabled = true;
         sr.enabled = true;
     }
