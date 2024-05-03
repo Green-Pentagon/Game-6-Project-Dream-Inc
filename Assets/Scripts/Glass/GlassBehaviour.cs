@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GlassBehaviour : MonoBehaviour
 {
+    private const int REPAIR_PENALTY = 2000;
+    private GlobalPingSystem GlobalPingSys;
+
     public GameObject EmitterPrefab;
     private BoxCollider2D bc;
     private SpriteRenderer sr;
@@ -11,6 +14,8 @@ public class GlassBehaviour : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
+        GlobalPingSys = GameObject.FindGameObjectWithTag("GlobalPing").GetComponent<GlobalPingSystem>();
+
         bc = GetComponent<BoxCollider2D>();
         sr = GetComponent<SpriteRenderer>();
         ShatterAudio = GetComponent<AudioSource>();
@@ -26,6 +31,7 @@ public class GlassBehaviour : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         bc.enabled = false;
         sr.enabled = false;
+        GlobalPingSys.WindowBroken(REPAIR_PENALTY);
         GameObject temp;
         temp = Instantiate(EmitterPrefab, transform);
         yield return new WaitForSeconds(0.1f);
@@ -36,7 +42,10 @@ public class GlassBehaviour : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "Player")
+
+        //add a minimum cost required which is taken off the player upon breaking a window
+        //make sure that the player cannot end their game by breaking windows!
+        if (collision.gameObject.tag == "Player" && collision.gameObject.GetComponent<PlayerBehaviourScript>().GetCurrentCash() > REPAIR_PENALTY)
         {
             StartCoroutine(DestroyGlass());
         }
