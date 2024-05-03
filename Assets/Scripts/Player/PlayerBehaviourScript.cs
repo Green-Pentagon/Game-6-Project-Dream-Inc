@@ -7,7 +7,7 @@ public class PlayerBehaviourScript : MonoBehaviour
 {
     //movement
     private Rigidbody2D rb;
-    private float speed = 25.0f;
+    private float speed = 35.0f;
 
     //primary fire
     private AudioSource fireSound;
@@ -17,6 +17,7 @@ public class PlayerBehaviourScript : MonoBehaviour
     //money
     public TextMeshProUGUI moneyReadout;
     public TextMeshProUGUI moneyMultiplierReadout;
+    private int bossDeskAwake = 1;
     private float currentCash = 1000;
     private float cashMultiplier = 0.0f;
     private Color defaultColour = Color.black;
@@ -29,16 +30,24 @@ public class PlayerBehaviourScript : MonoBehaviour
 
     IEnumerator MoneyReadoutColourFade(bool wasGain)
     {
-        if (wasGain)
+        if (bossDeskAwake == 1)
         {
-            moneyReadout.color = positiveColour;
+            if (wasGain)
+            {
+                moneyReadout.color = positiveColour;
+            }
+            else
+            {
+                moneyReadout.color = negativeColour;
+            }
+            yield return new WaitForSeconds(1.0f);
+            moneyReadout.color = defaultColour;
         }
         else
         {
-            moneyReadout.color = negativeColour;
+            yield return null;
         }
-        yield return new WaitForSeconds(1.0f);
-        moneyReadout.color = defaultColour;
+        
     }
 
     public float GetCurrentCash()
@@ -60,8 +69,24 @@ public class PlayerBehaviourScript : MonoBehaviour
         cashMultiplier += factor;
     }
 
+    public void BossDeskState(bool isAwake)
+    {
+        if (isAwake)
+        {
+            bossDeskAwake = 1;
+            moneyReadout.color = defaultColour;
+        }
+        else
+        {
+            bossDeskAwake = 0;
+            moneyReadout.color = negativeColour;
+        }
+    }
+
     private void UpdateCashReadout()
     {
+        
+
         if (cashMultiplier <= 0.0f)
         {
             moneyMultiplierReadout.color = negativeColour;
@@ -104,7 +129,7 @@ public class PlayerBehaviourScript : MonoBehaviour
 
     private void FixedUpdate()
     {
-        currentCash += Mathf.Round(100.0f * cashMultiplier) / 100.0f; //get the amount to the nearest 2dp.
+        currentCash += (cashMultiplier * bossDeskAwake);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

@@ -10,10 +10,11 @@ public class GlobalPingSystem : MonoBehaviour
         GameObject[] employees = GameObject.FindGameObjectsWithTag("Employee");
         foreach (GameObject employee in employees)
         {
-            if (employee != null)
+            if (employee != null)// in the event that objects were incorrectly tagged as employee, the objects are skipped.
             {
                 EmployeeBehaviourScript temp = employee.GetComponent<EmployeeBehaviourScript>();
                 temp.WakeUp();
+                temp.WindowWasBroken();
             }
             
         }
@@ -28,6 +29,11 @@ public class GlobalPingSystem : MonoBehaviour
     public void EmployeeAlterCashGain(float factor)
     {
          GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerBehaviourScript>().AlterCashMultiplier(factor);
+    }
+
+    public void BossDeskChangeState(bool state)
+    {
+        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerBehaviourScript>().BossDeskState(state);
     }
 
     // Start is called before the first frame update

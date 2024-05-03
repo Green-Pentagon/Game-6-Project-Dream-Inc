@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GlassBehaviour : MonoBehaviour
 {
-    private const int REPAIR_PENALTY = 2000;
+    private const int REPAIR_PENALTY = 4000;
     private GlobalPingSystem GlobalPingSys;
 
     public GameObject EmitterPrefab;

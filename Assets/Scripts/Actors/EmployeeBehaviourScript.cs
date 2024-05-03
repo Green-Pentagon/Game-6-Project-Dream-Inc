@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EmployeeBehaviourScript : MonoBehaviour
 {
+    private bool isBossDesk = false;
+
     private GlobalPingSystem GlobalPingSys;
 
     private bool asleep = false;
@@ -15,7 +17,15 @@ public class EmployeeBehaviourScript : MonoBehaviour
 
     private float getNewTime()
     {
-        return Random.Range(5.0f, 10.0f);
+        if (isBossDesk)
+        {
+            return Random.Range(10.0f, 15.0f);
+        }
+        else
+        {
+            return Random.Range(5.0f, 10.0f);
+        }
+       
     }
 
     private void resetTimer()
@@ -30,23 +40,49 @@ public class EmployeeBehaviourScript : MonoBehaviour
         if (asleep)
         {
             asleep = false;
+            if (isBossDesk)
+            {
+                GlobalPingSys.BossDeskChangeState(!asleep);
+            }
+            else
+            {
+                GlobalPingSys.EmployeeAlterCashGain(CashGainFactor * 2);  
+            }
             resetTimer();
-            GlobalPingSys.EmployeeAlterCashGain(CashGainFactor*2);
             debugSR.color = Color.white;
+
         }
+    }
+
+    public void WindowWasBroken()
+    {
+        resetTimer();
     }
 
     private void FallAsleep()
     {
         asleep = true;
-        GlobalPingSys.EmployeeAlterCashGain(-CashGainFactor*2);
-        debugSR.color = Color.blue;
+        if (!isBossDesk)
+        {
+            GlobalPingSys.EmployeeAlterCashGain(-CashGainFactor * 2);
+        }
+        else
+        {
+            GlobalPingSys.BossDeskChangeState(!asleep);
+            CashGainFactor = 0.0f;
+        }
+        
+        debugSR.color = Color.red;
     }
 
 
     // Start is called before the first frame update
     void Start()
     {
+        if (gameObject.tag == "Desk")
+        {
+            isBossDesk = true;
+        }
         GlobalPingSys = GameObject.FindGameObjectWithTag("GlobalPing").GetComponent<GlobalPingSystem>();
         resetTimer();
         debugSR = GetComponent<SpriteRenderer>();
@@ -56,11 +92,21 @@ public class EmployeeBehaviourScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        currentTime += Time.deltaTime;
+
+    }
+
+    private void FixedUpdate()
+    {
+        currentTime += Time.fixedDeltaTime;
 
         if (currentTime >= timeTillSleep && !asleep)
         {
             FallAsleep();
         }
+        if (!asleep)
+        {
+            transform.Rotate((Vector3.forward) * (2.0f / (currentTime / timeTillSleep)));
+        }
+        
     }
 }

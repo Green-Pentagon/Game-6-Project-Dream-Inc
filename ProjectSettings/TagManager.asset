@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Employee
   - GlobalPing
+  - Desk
   layers:
   - Default
   - TransparentFX
