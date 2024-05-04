@@ -28,9 +28,9 @@ public class PlayerBehaviourScript : MonoBehaviour
     private int bossDeskAwake = 1;
     private float currentCash = 1000;
     private float cashMultiplier = 0.0f;
-    private Color defaultColour = Color.black;
+    private Color defaultColour = Color.white;
     private Color positiveColour = Color.green;
-    private Color negativeColour = Color.red;
+    private Color negativeColour = new Color(0.906f, 0.033f, 0.0f);
 
     //employee object references
     private GameObject employee;
