@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerBehaviourScript : MonoBehaviour
@@ -8,6 +9,13 @@ public class PlayerBehaviourScript : MonoBehaviour
     //movement
     private Rigidbody2D rb;
     private float speed = 35.0f;
+
+    //player state
+    private float timeAlive = 0.0f;
+    private bool alive = true;
+    private bool won = false;
+    private TextMeshProUGUI EndofGameText;
+    public GameObject EndOfGameCard;
 
     //primary fire
     private AudioSource fireSound;
@@ -86,7 +94,6 @@ public class PlayerBehaviourScript : MonoBehaviour
     private void UpdateCashReadout()
     {
         
-
         if (cashMultiplier <= 0.0f)
         {
             moneyMultiplierReadout.color = negativeColour;
@@ -99,9 +106,31 @@ public class PlayerBehaviourScript : MonoBehaviour
         moneyMultiplierReadout.text = "x" + cashMultiplier.ToString();
     }
 
+    private void GameOver()
+    {
+        alive = false;
+        timeAlive = Mathf.RoundToInt(timeAlive * 100.0f) / 100.0f;
+        if (!won)
+        {
+            EndofGameText.color = negativeColour;
+            EndofGameText.text = "Game Over!\nYour dream business lasted for " + timeAlive.ToString() + " seconds.";
+        }
+        else
+        {
+            EndofGameText.color = positiveColour;
+            EndofGameText.text = "Game Over!\nYour dream business succeeded in " + timeAlive.ToString() + " seconds!";
+        }
+        
+        EndOfGameCard.SetActive(true);
+        
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
+        EndofGameText = EndOfGameCard.transform.GetChild(0).ConvertTo<TMPro.TextMeshProUGUI>();
+        EndOfGameCard.SetActive(false);
         rb = GetComponent<Rigidbody2D>();
         fireSound = GetComponent<AudioSource>();
     }
@@ -109,28 +138,45 @@ public class PlayerBehaviourScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float xMovement = Input.GetAxis("Horizontal") * speed;
-        float yMovement = Input.GetAxis("Vertical") * speed;
-        rb.velocity = new Vector2(xMovement, yMovement);
-
-        if (Input.GetKeyDown(fireKey) && !fire)
+        if (alive)
         {
-            fire = true;
-            fireSound.Play();
-        }
-        if (Input.GetKeyUp(fireKey) && fire)
-        {
-            fire = false;
-        }
+            float xMovement = Input.GetAxis("Horizontal") * speed;
+            float yMovement = Input.GetAxis("Vertical") * speed;
+            rb.velocity = new Vector2(xMovement, yMovement);
 
-        UpdateCashReadout();
+            if (Input.GetKeyDown(fireKey) && !fire)
+            {
+                fire = true;
+                fireSound.Play();
+            }
+            if (Input.GetKeyUp(fireKey) && fire)
+            {
+                fire = false;
+            }
+
+            UpdateCashReadout();
+        }
     }
 
 
     private void FixedUpdate()
     {
-        currentCash += (cashMultiplier * bossDeskAwake);
+        if (currentCash >= 20000.0f)
+        {
+            won = true;
+            GameOver();
+        }
+        else if (currentCash > 0.0f)
+        {
+            currentCash += (cashMultiplier * bossDeskAwake);
+            timeAlive += Time.fixedDeltaTime;
+        }
+        else if (alive)
+        {
+            GameOver();
+        }
     }
+        
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
