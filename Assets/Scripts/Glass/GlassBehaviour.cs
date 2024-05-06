@@ -33,7 +33,7 @@ public class GlassBehaviour : MonoBehaviour
         sr.enabled = false;
         GlobalPingSys.WindowBroken(REPAIR_PENALTY);
         GameObject temp;
-        temp = Instantiate(EmitterPrefab, transform);
+        temp = Instantiate(EmitterPrefab, new Vector3(transform.position.x,transform.position.y,EmitterPrefab.transform.position.z),transform.rotation);
         yield return new WaitForSeconds(0.1f);
         yield return new WaitForSeconds(temp.GetComponent<GlassEmitter>().duration);
         bc.enabled = true;

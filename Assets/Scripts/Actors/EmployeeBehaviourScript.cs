@@ -13,7 +13,8 @@ public class EmployeeBehaviourScript : MonoBehaviour
     private float currentTime;
     private float CashGainFactor = 1.0f; //how much gain/loss player incurs depending on employee state.
 
-    private SpriteRenderer debugSR;
+    public SpriteRenderer Sprite;
+    public Sprite[] States; //0 - active, 1 - asleep
 
     private float getNewTime()
     {
@@ -49,7 +50,7 @@ public class EmployeeBehaviourScript : MonoBehaviour
                 GlobalPingSys.EmployeeAlterCashGain(CashGainFactor * 2);  
             }
             resetTimer();
-            debugSR.color = Color.white;
+            Sprite.sprite = States[0];
 
         }
     }
@@ -72,7 +73,8 @@ public class EmployeeBehaviourScript : MonoBehaviour
             CashGainFactor = 0.0f;
         }
         
-        debugSR.color = Color.red;
+        Sprite.sprite = States[1];
+
     }
 
 
@@ -85,7 +87,6 @@ public class EmployeeBehaviourScript : MonoBehaviour
         }
         GlobalPingSys = GameObject.FindGameObjectWithTag("GlobalPing").GetComponent<GlobalPingSystem>();
         resetTimer();
-        debugSR = GetComponent<SpriteRenderer>();
         GlobalPingSys.EmployeeAlterCashGain(CashGainFactor);
     }
 
@@ -103,7 +104,7 @@ public class EmployeeBehaviourScript : MonoBehaviour
         {
             FallAsleep();
         }
-        if (!asleep)
+        if (!asleep && !isBossDesk)
         {
             transform.Rotate((Vector3.forward) * (2.0f / (currentTime / timeTillSleep)));
         }
